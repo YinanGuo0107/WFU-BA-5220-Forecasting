@@ -1,0 +1,179 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+# Load Libraries 
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(skimr)
+library(kableExtra)
+library(GGally)
+library(fastshap)   
+library(MASS)
+library(ISLR)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(imputeTS)
+library(forecast)
+library(urca)
+library(pracma)
+library(astsa)
+library(fpp2)
+
+```
+
+# Load Data
+```{r}
+rs<-read_csv("RetailSales2.csv") %>%
+  clean_names()
+
+head(rs)
+lace <- subset(rs, select=c(laces))
+blouse<-subset(rs, select=c(blouses))
+```
+
+# For lace
+## Time series
+seasonal but no trend
+```{r}
+lace_ts <- ts(lace, start=c(1994,1), frequency = 12)
+plot(lace_ts)
+```
+
+## ACF/PACF
+```{r}
+ggAcf(lace_ts, lag.max=200)
+
+ggPacf(lace_ts, lag.max=200)
+```
+
+## ADF 
+```{r}
+lace_df <- ur.df(lace_ts, type = "drift")
+summary(lace_df)
+```
+
+## Take a 12-month seasonal difference and look at ACF and PACF
+```{r}
+lace_12 <- diff(lace_ts,12)
+ggAcf(lace_12)
+ggPacf(lace_12)
+```
+
+
+## Model 1 ETS
+```{r}
+lace_ets <- ets(lace_ts, model="ZZZ")
+summary(lace_ets)
+checkresiduals(lace_ets)
+
+forecast(lace_ets, h=3)
+
+lace_ets %>% forecast() %>% autoplot()
+```
+
+## Model 2 - Additive Holt Winter
+```{r}
+laceA <- hw(lace_ts, seasonal="additive", h=12)
+summary(laceA)
+checkresiduals(laceA)
+forecast(laceA, h=3)
+laceA %>% forecast() %>% autoplot()
+```
+
+##  Model 3 - Multiplicative Holt Winter
+```{r}
+laceM <- hw(lace_ts, seasonal="multiplicative", h=12)
+summary(laceM)
+checkresiduals(laceM)
+forecast(laceM, h=3)
+laceM %>% forecast() %>% autoplot()
+
+```
+
+## Mod 4 - ARiMA
+```{r}
+fit_auto2 <- auto.arima(lace_ts)
+summary(fit_auto2)
+checkresiduals(fit_auto2)
+accuracy(fit_auto2)
+forecast(fit_auto2, h=3)
+fit_auto2 %>% forecast() %>% autoplot()
+```
+
+
+
+# For blouse
+## Time series
+seasonal and trend
+```{r}
+blouse_ts <- ts(blouse, start=c(1994,1), frequency = 12)
+plot(blouse_ts)
+```
+
+## ACF/PACF
+```{r}
+ggAcf(blouse_ts, lag.max=200)
+
+ggPacf(blouse_ts, lag.max=200)
+```
+
+## ADF 
+```{r}
+blouse_df <- ur.df(blouse_ts, type = "drift")
+summary(blouse_df)
+```
+
+## Take a 12-month seasonal difference and look at ACF and PACF
+```{r}
+blouse_12 <- diff(blouse_ts,12)
+ggAcf(blouse_12)
+ggPacf(blouse_12)
+```
+
+
+## Model 1 ETS
+```{r}
+blouse_ets <- ets(blouse_ts, model="ZZZ")
+summary(blouse_ets)
+checkresiduals(blouse_ets)
+forecast(blouse_ets, h=3)
+blouse_ets %>% forecast() %>% autoplot()
+```
+
+## Model 2 - Additive Holt Winter
+```{r}
+blouseA <- hw(blouse_ts, seasonal="additive", h=12)
+summary(blouseA)
+checkresiduals(blouseA)
+forecast(blouseA, h=3)
+blouseA %>% forecast() %>% autoplot()
+```
+
+##  Model 3 - Multiplicative Holt Winter
+```{r}
+blouseM <- hw(blouse_ts, seasonal="multiplicative", h=12)
+summary(blouseM)
+checkresiduals(blouseM)
+forecast(blouseM, h=3)
+blouseM %>% forecast() %>% autoplot()
+
+```
+
+## Mod 4 - ARiMA
+```{r}
+fit_auto <- auto.arima(blouse_ts)
+summary(fit_auto)
+checkresiduals(fit_auto)
+accuracy(fit_auto)
+forecast(fit_auto, h=3)
+fit_auto %>% forecast() %>% autoplot()
+```
