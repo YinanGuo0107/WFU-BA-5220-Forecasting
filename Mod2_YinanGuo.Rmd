@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(skimr)
+library(kableExtra)
+library(GGally)
+library(vip)        
+library(fastshap)   
+library(MASS)
+library(ISLR)
+library(tree)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(imputeTS)
+library(forecast)
+library(urca)
+library(pracma)
+```
+
+# Load Data
+```{r}
+CP <- read_csv("PRSA_Changping.csv") %>%
+  clean_names()
+
+head(CP) 
+
+CP <- subset(CP, select=c(year,month,day, hour,no2))
+sum(is.na(CP$no2))
+```
+
+# Summarise Data
+```{r, warning=FALSE, message=FALSE}
+
+cp_clean <- na.omit(CP)
+cp_month <- cp_clean %>%
+  group_by(year, month) %>%
+  summarize(sum_no2 = sum(no2))
+
+head(cp_month)
+```
+
+# Create time series object and plot time series
+```{r, warning=FALSE, message=FALSE}
+cp_month <- subset(cp_month, select=-c(month, year))
+cp_ts <- ts(cp_month, start=c(2013,1), frequency = 12)
+plot(cp_ts)
+
+```
+
+# Is this series white noise?
+
+```{r}
+Box.test(cp_month$sum_no2, lag=8, fitdf=0, type="Lj")
+
+```
+
+# Plot ACF and PACF
+
+```{r, warning=FALSE, message=FALSE}
+
+ggAcf(cp_ts)
+
+ggPacf(cp_ts)
+
+```
+
+# ADF test for stationarity
+```{r}
+
+inv_df <- ur.df(cp_ts, type = "drift")
+summary(inv_df)
+
+```
+
