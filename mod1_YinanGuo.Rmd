@@ -1,0 +1,92 @@
+---
+title: "Mod 1 Assignment"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+## Load Libraries 
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(skimr)
+library(kableExtra)
+library(GGally)
+library(vip)        
+library(fastshap)   
+library(MASS)
+library(ISLR)
+library(tree)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(imputeTS)
+```
+
+## Load Data
+```{r}
+birth <- read_csv("Daily_Birth.csv") %>%
+  clean_names()
+
+head(birth) 
+```
+
+## Plot raw data
+```{r}
+birth %>%
+ggplot(aes(x = date, y = num_births)) +
+      geom_point() +
+      labs(title = "Birth Num",
+           subtitle = "Raw Data",
+           y = "Birth Num",
+           x = "Date") 
+```
+
+
+## Clean & mutate data
+```{r,warning=FALSE}
+
+birth_clean <- na.omit(birth)
+birth_clean <- birth_clean %>%
+  mutate(month = month(date))%>%
+  mutate(year = year(date))
+
+```
+
+## Accumulate in Month
+```{r,warning=FALSE}
+birth_month <- birth_clean %>%
+  group_by(year, month) %>%
+  summarize(sum_birth = sum(num_births))
+
+head(birth_month)
+
+
+birth_month <- subset(birth_month, select=-c(month, year))
+head(birth_month)
+
+
+birth_ts <- ts(birth_month, start=c(1977,1), frequency = 12)
+plot(birth_ts)
+
+```
+
+## Accumulate in Year
+```{r,warning=FALSE}
+birth_year <- birth_clean %>%
+  group_by(year) %>%
+  summarize(sum_birth = sum(num_births))
+
+head(birth_year)
+
+
+birth_year <- subset(birth_year, select=-c(year))
+head(birth_year)
+
+
+birth_ts_yr <- ts(birth_year, start=c(1977), frequency = 1)
+plot(birth_ts_yr)
+
+```
