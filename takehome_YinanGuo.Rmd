@@ -1,0 +1,123 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(skimr)
+library(kableExtra)
+library(GGally)
+library(vip)        
+library(fastshap)   
+library(MASS)
+library(ISLR)
+library(tree)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(imputeTS)
+library(forecast)
+library(urca)
+library(pracma)
+library(astsa)
+library(fpp2)
+```
+
+# Load Data
+```{r}
+ibl <- read_csv("IBL.csv") %>%
+  clean_names()
+head(ibl)
+```
+
+# Time series, ACF and PACF
+```{r}
+ibl <- subset(ibl, select=c(ln_loans))
+
+ibl_ts <- ts(ibl, start=c(1972,1), frequency = 12)
+plot(ibl_ts)
+ggAcf(ibl_ts)
+ggPacf(ibl_ts)
+```
+
+# Ljung Box
+The series is not white noise
+```{r}
+Box.test(ibl_ts, lag=8, fitdf=0, type="Lj")
+```
+
+# ADF
+It is non-stationary
+```{r}
+ibl_df <- ur.df(ibl_ts, type = "trend")
+summary(ibl_df)
+```
+
+# Model 1
+```{r}
+fit1 <- sarima(ibl_ts, 1,1,0)
+summary(fit1)
+fit1
+```
+
+# Model 2
+```{r}
+fit2 <- sarima(ibl_ts, 0,1,1)
+summary(fit2)
+fit2
+```
+
+# Model 3
+```{r}
+fit3 <- sarima(ibl_ts, 1,1,1)
+summary(fit3)
+fit3
+```
+
+# Model 4
+```{r}
+fit4 <- sarima(ibl_ts, 2,1,1)
+summary(fit4)
+fit4
+```
+
+# Model 5 ARiMA(2,1,2)
+```{r}
+fit5 <- sarima(ibl_ts, 2,1,2)
+summary(fit5)
+fit5
+
+
+fit5_arima <- Arima(ibl_ts, order=c(2,1,2))
+summary(fit5_arima)
+checkresiduals(fit5_arima)
+
+forecast(fit5_arima)
+autoplot(forecast(fit5_arima))
+
+ggAcf(residuals(fit5_arima))
+ggPacf(residuals(fit5_arima))
+
+forecast(fit5_arima, h=3)
+
+fit5_arima %>% forecast() %>% autoplot()
+```
+
+# Auto Arima
+```{r}
+fitauto <- auto.arima(ibl_ts)
+summary(fitauto)
+checkresiduals(fitauto)
+
+forecast(fitauto, h=3)
+fitauto %>% forecast() %>% autoplot()
+```
+
+
