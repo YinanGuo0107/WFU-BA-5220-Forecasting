@@ -1,0 +1,274 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Load Libraries 
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(skimr)
+library(kableExtra)
+library(GGally)
+library(vip)        
+library(fastshap)   
+library(MASS)
+library(ISLR)
+library(tree)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(imputeTS)
+library(imputeTS)
+library(forecast)
+library(urca)
+library(astsa)
+library(fpp2)
+
+```
+
+# Series 1
+## Data
+```{r}
+s1 <- read_csv("arma_series01.csv") %>%
+  clean_names()
+
+head(s1)
+s1<- na.omit(s1)
+s1<-subset(s1, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s1_ts <- ts(s1, start=c(1993,3), frequency = 12)
+plot(s1_ts)
+
+# white noise test
+Box.test(s1, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s1_ts)
+ggPacf(s1_ts)
+
+# ADF
+inv_df1 <- ur.df(s1_ts, type = "drift")
+summary(inv_df1)
+
+# ARIMA
+fit_mod1 <- sarima(s1_ts, 1,0,0)
+fit_mod1
+```
+
+
+
+# Series 2
+## Data
+```{r}
+s2 <- read_csv("arma_series02.csv") %>%
+  clean_names()
+
+head(s2)
+
+s2<- na.omit(s2)
+s2<-subset(s2, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s2_ts <- ts(s2, start=c(6,15), frequency = 30)
+plot(s2_ts)
+
+# white noise test
+Box.test(s2, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s2_ts)
+ggPacf(s2_ts)
+
+# ADF
+inv_df2 <- ur.df(s2_ts, type = "drift")
+summary(inv_df2)
+
+# ARIMA
+fit_mod2 <- sarima(s2_ts, 2,0,0)
+fit_mod2
+```
+
+
+
+
+# Series 3
+## Data
+```{r}
+s3 <- read_csv("arma_series03.csv") %>%
+  clean_names()
+
+head(s3)
+s3<- na.omit(s3)
+s3<-subset(s3, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s3_ts <- ts(s3, start=c(1992,5), frequency = 12)
+plot(s3_ts)
+
+# white noise test
+Box.test(s3, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s3_ts)
+ggPacf(s3_ts)
+
+# ADF
+inv_df3 <- ur.df(s3_ts, type = "drift")
+summary(inv_df3)
+
+# ARIMA
+fit_mod3 <- sarima(s3_ts,0,0,1)
+fit_mod3
+```
+
+
+
+# Series 4
+## Data
+```{r}
+s4 <- read_csv("arma_series04.csv") %>%
+  clean_names()
+
+head(s4)
+s4<- na.omit(s4)
+s4<-subset(s4, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s4_ts <- ts(s4, start=c(5,18), frequency = 30)
+plot(s4_ts)
+
+# white noise test
+Box.test(s4, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s4_ts)
+ggPacf(s4_ts)
+
+# ADF
+inv_df4 <- ur.df(s4_ts, type = "drift")
+summary(inv_df4)
+
+# ARIMA
+fit_mod4 <- sarima(s4_ts,0,0,2)
+fit_mod4
+```
+
+
+
+# Series 5
+## Data
+```{r}
+s5 <- read_csv("arma_series05.csv") %>%
+  clean_names()
+
+head(s5)
+s5<- na.omit(s5)
+s5<-subset(s5, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s5_ts <- ts(s5, start=c(1992,5), frequency = 12)
+plot(s5_ts)
+
+# white noise test
+Box.test(s5, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s5_ts)
+ggPacf(s5_ts)
+
+# ADF
+inv_df5 <- ur.df(s5_ts, type = "drift")
+summary(inv_df5)
+
+# ARIMA
+fit_mod5 <- sarima(s5_ts,2,0,1)
+fit_mod5
+```
+
+
+# Series 6
+## Data
+```{r}
+s6 <- read_csv("arma_series06.csv") %>%
+  clean_names()
+
+head(s6)
+s6<- na.omit(s6)
+s6<-subset(s6, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s6_ts <- ts(s6, start=c(1992,5), frequency = 12)
+plot(s6_ts)
+
+# white noise test
+Box.test(s6, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s6_ts)
+ggPacf(s6_ts)
+
+# ADF
+inv_df6 <- ur.df(s6_ts, type = "drift")
+summary(inv_df6)
+
+# ARIMA
+fit_mod6 <- sarima(s6_ts,2,0,1)
+fit_mod6
+```
+
+
+
+# Series 7
+## Data
+```{r}
+s7 <- read_csv("arma_series07.csv") %>%
+  clean_names()
+
+head(s7)
+s7<- na.omit(s7)
+s7<-subset(s7, select=c(y))
+```
+
+## ARIMA
+```{r}
+# time series plot
+s7_ts <- ts(s7, start=c(1993,1), frequency = 12)
+plot(s7_ts)
+
+# white noise test
+Box.test(s7, lag=8, fitdf=0, type="Lj")
+
+# ACF & PACF
+ggAcf(s7_ts)
+ggPacf(s7_ts)
+
+# ADF
+inv_df7 <- ur.df(s7_ts, type = "drift")
+summary(inv_df7)
+
+# ARIMA
+fit_mod7 <- sarima(s7_ts,1,0,1)
+fit_mod7
+```
